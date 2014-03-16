@@ -1,9 +1,9 @@
-function rand1(){return Math.floor(Math.random()*256);}
+function rand1(){return Math.floor(Math.random()*2)*255;}
 
 function drawCanvas1(){
 	var c=document.getElementById("drawHere");
 	var ctx=c.getContext("2d");
-	gridSize = 100;
+	gridSize = 400;
 	gridSize2 = gridSize*gridSize*4;
 	
 	var canvasData = ctx.getImageData(0,0,gridSize, gridSize);
@@ -20,7 +20,8 @@ function smooth(){
 	var c=document.getElementById("drawHere");
 	var ctx=c.getContext("2d");
 	canvasData = ctx.getImageData(0,0,gridSize, gridSize);
-
+	var flipThreshold = 0.995;
+	
 	function calculateIndexST(i, j){ return (j+i*gridSize)*4;}
 	
 	function swapTest(STi, STj, incStep){
@@ -40,7 +41,9 @@ function smooth(){
  		STRg = (canvasData.data[indexST+3*incStep+1]-canvasData.data[indexST+incStep+1]);
  		STRb = (canvasData.data[indexST+3*incStep+2]-canvasData.data[indexST+incStep+2]);
         var STRight = STLr*STLr+STLg*STLg+STLb*STLb + STRr*STRr +STRg*STRg+STRb*STRb;
-		return STRight>STLeft;
+		var Bbool =  STRight>STLeft;
+	    Bbool = (Math.random()>flipThreshold)||Bbool;
+	    return Bbool;
 	};
 	
 	function swapTestEdge(STi, STj, incStep){
@@ -54,7 +57,9 @@ function smooth(){
  		STRg = (canvasData.data[indexST+2*incStep+1]-canvasData.data[indexST+1]);
  		STRb = (canvasData.data[indexST+2*incStep+2]-canvasData.data[indexST+2]);
         var STRight = STRr*STRr +STRg*STRg+STRb*STRb;
-		return STRight>STLeft;
+        var Bbool =  STRight>STLeft;
+        Bbool = (Math.random()>flipThreshold)||Bbool;
+	    return Bbool;
 	};
 
 	function swapCellsInterior(STi, STj, incStep){
