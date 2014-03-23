@@ -29,18 +29,20 @@ function drawCanvas1(){
 	var myScreen2 = myScreen*myScreen*4;
 	var myScreen4 = myScreen*4;
 	var scaler =myScreen/gridSize; 
-	var canvasData = ctx.getImageData(0,0,myScreen, myScreen);
-	
-	for(var i = 0; i< myScreen2;i+=4){
-		var iS = Math.floor(Math.floor(i/myScreen4 + 0.00001)*gridSize/myScreen+0.00001);
-		var jS = Math.floor(((i+0.00001)%myScreen4)*gridSize/myScreen4+0.00001)+iS;
-	
-		canvasData.data[i]=dataGrid[jS].r;
-		canvasData.data[i+1]=dataGrid[jS].g;
-		canvasData.data[i+2]=dataGrid[jS].b;
-		canvasData.data[i+3]=255;
+	ctx.beginPath();
+	var squareSide = myScreen/gridSize;
+	for(var i = 0; i< gridSize2;i++){
+		var squareRow = Math.floor(i/gridSize);
+		var squareCol = Math.floor(i%gridSize);
+
+		var x = squareRow*squareSide;
+		var y = squareCol*squareSide;
+		
+		var t='rgba('+dataGrid[i].r+','+ dataGrid[i].g+','+dataGrid[i].b+',255)';
+		ctx.fillStyle = t;
+		ctx.fillRect(x,y,squareSide,squareSide);
     }
-	ctx.putImageData(canvasData,0,0);
+	ctx.stroke();
 };
 
 function calculateIndexST(i, j){ return (j+i*gridSize);}
@@ -61,7 +63,7 @@ function swapTestEdge(STi, STj, incStep){
 	var STRb = dataGrid[two].b-dataGrid[zero].b;
     var STRight = STRr*STRr +STRg*STRg +STRb*STRb;
     var Bbool =  STRight>STLeft; 
-    //Bbool = (Math.random()>flipThreshold)||Bbool;
+    Bbool = (Math.random()>flipThreshold)||Bbool;
     return Bbool;
 };
 	
@@ -92,7 +94,7 @@ function swapTest(STi, STj, incStep){
 
 	var STRight = STLr*STLr +STLg*STLg +STLb*STLb +STRr*STRr +STRg*STRg +STRb*STRb;
 	var Bbool =  STRight>STLeft;
-    //Bbool = (Math.random()<flipThreshold)||Bbool;
+    Bbool = (Math.random()<flipThreshold)||Bbool;
     return Bbool;
 };		
 
