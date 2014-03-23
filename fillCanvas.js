@@ -104,10 +104,11 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var SRb = bSum;
 	// find difference right cell with right surroundings
 	addRGB(indexST+2*incStep+incLateral);
-	var DiffRr = tff - Math.abs(rSum);
-	var DiffRg = tff - Math.abs(gSum);
-	var DiffRb = tff - Math.abs(bSum);
-		
+	var DiffRr = rSum;
+	var DiffRg = gSum;
+	var DiffRb = bSum;
+	var noDiffR = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	
 	times(0); // clear data
 	addRGB(indexST);
 	addRGB(indexST+incStep);
@@ -120,29 +121,32 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var SLg = gSum;
 	var SLb = bSum;
 	addRGB(indexST+incStep+incLateral);
-	var DiffLr = tff - Math.abs(rSum);
-	var DiffLg = tff - Math.abs(gSum);
-	var DiffLb = tff - Math.abs(bSum);
-	var NoChange = DiffRr*DiffRr+DiffRg*DiffRg+DiffRb*DiffRb+DiffLr*DiffLr+DiffLg*DiffLg+DiffLb*DiffLb;
+	var DiffLr = rSum;
+	var DiffLg = gSum;
+	var DiffLb = bSum;
+	var noDiffL = DiffLr*DiffLr +DiffLg*DiffLg + DiffLb*DiffLb;
+	var NoChangeDiff = noDiffL+noDiffR;
 	
 	rSum = SRr;
 	gSum = SRg;
 	bSum = SRb;
 	addRGB(indexST+incStep+incLateral);
-	DiffRr = tff - Math.abs(rSum);
-	DiffRg = tff - Math.abs(gSum);
-	DiffRb = tff - Math.abs(bSum);
-
+	DiffRr = rSum;
+	DiffRg = gSum;
+	DiffRb = bSum;
+	var swapDiffR = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	
 	rSum = SLr;
 	gSum = SLg;
 	bSum = SLb;
 	addRGB(indexST+2*incStep+incLateral);
-	DiffLr = tff - Math.abs(rSum);
-	DiffLg = tff - Math.abs(gSum);
-	DiffLb = tff - Math.abs(bSum);
-	var Swap = DiffRr*DiffRr+DiffRg*DiffRg+DiffRb*DiffRb+DiffLr*DiffLr+DiffLg*DiffLg+DiffLb*DiffLb;
+	DiffLr = rSum;
+	DiffLg = gSum;
+	DiffLb = bSum;
+	var swapDiffL = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	var SwapDiff = swapDiffR+swapDiffL;
 	
-	var Bbool =  Swap>NoChange;
+	var Bbool =  SwapDiff<NoChangeDiff;
     Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
     return Bbool;
 
