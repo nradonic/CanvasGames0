@@ -56,6 +56,7 @@ function drawCanvas1(){
 function calculateIndexST(i, j){ return (j+i*gridSize);}
 
 function swapTestEdge(STi, STj, incStep){
+	
 	var indexST = calculateIndexST(STi, STj);
 	var zero = indexST;
 	var one = indexST+incStep;
@@ -75,6 +76,77 @@ function swapTestEdge(STi, STj, incStep){
     Bbool = (Math.random()>flipThreshold)||Bbool;
     return Bbool;
 };
+	
+function swatTest2D(STi, STj, incStep, incLateral){
+	var tff = 255;
+	var rSum=0;
+	var gSum=0;
+	var bSum=0;
+	function times(x){rSum *= x; gSum*= x; bSum*=x;}
+	
+	function addRGB(ST){
+		rSum += dataGrid[ST].r;
+		gSum += dataGrid[ST].g;
+		bSum += dataGrid[ST].b;
+	}
+
+	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
+	times(0); // clear data
+	addRGB(indexST+2*incStep);
+	addRGB(indexST+3*incStep);
+	addRGB(indexST+3*incStep+incLateral);
+	addRGB(indexST+3*incStep+2*incLateral);
+	addRGB(indexST+2*incStep+2*incLateral);
+	times(-0.2); // scale by 1/5
+	// get sum data
+	var SRr = rSum;
+	var SRg = gSum;
+	var SRb = bSum;
+	// find difference right cell with right surroundings
+	addRGB(indexST+2*incStep+incLateral);
+	var DiffRr = tff - Math.abs(rSum);
+	var DiffRg = tff - Math.abs(gSum);
+	var DiffRb = tff - Math.abs(bSum);
+		
+	times(0); // clear data
+	addRGB(indexST);
+	addRGB(indexST+incStep);
+	addRGB(indexST+incLateral);
+	addRGB(indexST+2*incLateral);
+	addRGB(indexST+incStep+2*incLateral);
+	times(-0.2); // scale by 1/5
+	// get sum data
+	var SLr = rSum;
+	var SLg = gSum;
+	var SLb = bSum;
+	addRGB(indexST+incStep+incLateral);
+	var DiffLr = tff - Math.abs(rSum);
+	var DiffLg = tff - Math.abs(gSum);
+	var DiffLb = tff - Math.abs(bSum);
+	var NoChange = DiffRr*DiffRr+DiffRg*DiffRg+DiffRb*DiffRb+DiffLr*DiffLr+DiffLg*DiffLg+DiffLb*DiffLb;
+	
+	rSum = SRr;
+	gSum = SRg;
+	bSum = SRb;
+	addRGB(indexST+incStep+incLateral);
+	DiffRr = tff - Math.abs(rSum);
+	DiffRg = tff - Math.abs(gSum);
+	DiffRb = tff - Math.abs(bSum);
+
+	rSum = SLr;
+	gSum = SLg;
+	bSum = SLb;
+	addRGB(indexST+2*incStep+incLateral);
+	DiffLr = tff - Math.abs(rSum);
+	DiffLg = tff - Math.abs(gSum);
+	DiffLb = tff - Math.abs(bSum);
+	var Swap = DiffRr*DiffRr+DiffRg*DiffRg+DiffRb*DiffRb+DiffLr*DiffLr+DiffLg*DiffLg+DiffLb*DiffLb;
+	
+	var Bbool =  Swap>NoChange;
+    Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
+    return Bbool;
+
+}	
 	
 function swapTest(STi, STj, incStep){
 	var indexST = calculateIndexST(STi, STj);
@@ -104,7 +176,7 @@ function swapTest(STi, STj, incStep){
 
 	var STRight = STLr*STLr +STLg*STLg +STLb*STLb +STRr*STRr +STRg*STRg +STRb*STRb;
 	var Bbool =  STRight>STLeft;
-    Bbool = (Math.random()<flipThreshold)||Bbool;
+    Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
     return Bbool;
 };		
 
@@ -129,17 +201,18 @@ function swapCells(STi, STj, incStep){
 };
 
 function interiorHorizontal(){	// internal box i=row, j=columns
-	for(var i=0; i<gridSize-1;i++){
+	for(var i=0; i<gridSize-2;i++){
 		for(var j=0; j< gridSize-3;j++){
-			if(swapTest(i,j,1)){swapCells(i,j,1);}
+			//if(swapTest(i,j,1)){swapCells(i,j,1);}
+			if(swatTest2D(i,j,1,gridSize)){swapCells(i+1,j,1);}
 		}
 	}
 }
 
 function interiorVertical(){
 	for(var i=0; i<gridSize-3;i++){
-		for(var j=0; j< gridSize-1;j++){
-			if(swapTest(i,j,gridSize)){swapCells(i,j,gridSize);}
+		for(var j=0; j< gridSize-2;j++){
+			if(swapTest(i,j,gridSize,1)){swapCells(i,j,gridSize);}
 		}
 	}
 }
