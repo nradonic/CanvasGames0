@@ -1,5 +1,5 @@
-function rand1(){
-	return Math.floor(Math.random()*4)*85;
+function rand1(ColorSpace){
+	return Math.floor(Math.floor(Math.random()*ColorSpace)*255/(ColorSpace-1));
 }
 
 var flipThreshold = 0.5;
@@ -9,19 +9,27 @@ function gridCell(rc,gc,bc){this.r=rc,this.g=gc,this.b=bc};
 
 var dataGrid = new Array(gridSize2);
 
-
-
-function OnChange(dropdown)
+function OnChange()
 {
-    var myindex  = dropdown.selectedIndex;
-    var SelValue = dropdown.options[myindex].value;
+	var dropdownSize = document.getElementById("select1")
+    var myindex  = dropdownSize.selectedIndex;
+    var SelValue = dropdownSize.options[myindex].value;
     gridSize = parseInt(SelValue);
     gridSize2 = gridSize*gridSize;   
     dataGrid = new Array(gridSize2);
-    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(),0,0);} 
+    
+    var dropdownColor = document.getElementById("select2")
+    var mycolors  = dropdownColor.selectedIndex;
+    var SelColorValue = dropdownColor.options[mycolors].value;
+    var ColorSpace = parseInt(SelColorValue);
+    
+    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(ColorSpace),rand1(ColorSpace),rand1(ColorSpace));} 
     flipThreshold =0.5; 
+    
+    
     return true;
 }
+
 function drawCanvas1(){
 	var c=document.getElementById("drawHere");
 	var ctx=c.getContext("2d");
@@ -52,15 +60,16 @@ function swapTestEdge(STi, STj, incStep){
 	var zero = indexST;
 	var one = indexST+incStep;
 	var two = indexST+2*incStep;
+	var tff = 255;
 	
-	var STLr = dataGrid[zero].r-dataGrid[one].r;
-	var STLg = dataGrid[zero].g-dataGrid[one].g;
-	var STLb = dataGrid[zero].b-dataGrid[one].b;
+	var STLr = tff - Math.abs(dataGrid[zero].r-dataGrid[one].r);
+	var STLg = tff - Math.abs(dataGrid[zero].g-dataGrid[one].g);
+	var STLb = tff - Math.abs(dataGrid[zero].b-dataGrid[one].b);
     var STLeft = STLr*STLr +STLg*STLg+STLb*STLb;
 
-	var STRr = dataGrid[two].r-dataGrid[zero].r;
-	var STRg = dataGrid[two].g-dataGrid[zero].g;
-	var STRb = dataGrid[two].b-dataGrid[zero].b;
+	var STRr = tff - Math.abs(dataGrid[two].r-dataGrid[zero].r);
+	var STRg = tff - Math.abs(dataGrid[two].g-dataGrid[zero].g);
+	var STRb = tff - Math.abs(dataGrid[two].b-dataGrid[zero].b);
     var STRight = STRr*STRr +STRg*STRg +STRb*STRb;
     var Bbool =  STRight>STLeft; 
     Bbool = (Math.random()>flipThreshold)||Bbool;
@@ -73,14 +82,15 @@ function swapTest(STi, STj, incStep){
 	var one = indexST+incStep;
 	var two = indexST+2*incStep;
 	var three = indexST+3*incStep;
+	var tff = 255;
+		
+	var STLr = tff - Math.abs(dataGrid[zero].r-dataGrid[one].r);
+	var STLg = tff - Math.abs(dataGrid[zero].g-dataGrid[one].g);
+	var STLb = tff - Math.abs(dataGrid[zero].b-dataGrid[one].b);
 	
-	var STLr = dataGrid[zero].r-dataGrid[one].r;
-	var STLg = dataGrid[zero].g-dataGrid[one].g;
-	var STLb = dataGrid[zero].b-dataGrid[one].b;
-	
-	var STRr = dataGrid[two].r-dataGrid[three].r;
-	var STRg = dataGrid[two].g-dataGrid[three].g;
-	var STRb = dataGrid[two].b-dataGrid[three].b;
+	var STRr = tff - Math.abs(dataGrid[two].r-dataGrid[three].r);
+	var STRg = tff - Math.abs(dataGrid[two].g-dataGrid[three].g);
+	var STRb = tff - Math.abs(dataGrid[two].b-dataGrid[three].b);
 		
     var STLeft = STLr*STLr +STLg*STLg +STLb*STLb +STRr*STRr +STRg*STRg +STRb*STRb;
 
@@ -135,7 +145,7 @@ function interiorVertical(){
 }
 
 function edgewalk(){	// left side
-	for ( var i = 0; i< gridSize-1; i++){
+	for ( var i = 0; i< gridSize; i++){
 		//left edge increment=1
 		if(swapTestEdge(i,2,-1)){swapCells(i, 2, -1);}
 		//right edge increment=-4
@@ -149,14 +159,14 @@ function edgewalk(){	// left side
 
 function smooth(){
 	flipThreshold = flipThreshold*0.95;
-	document.getElementById("Threshold").innerHTML=flipThreshold;
+	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	interiorHorizontal();
 	interiorVertical();
 	edgewalk();
 }
 
 function cycle(myVarr){
-	if(flipThreshold>0.0001){ smooth();}else{clearInterval(myVarr);} ;
+	smooth();
 	drawCanvas1(); 
 }
 

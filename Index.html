@@ -5,12 +5,12 @@
 </head>
 <body>
 <p>Hello http://localhost/canvasgames/</p>
-<p>similarly colored pixels are attracted to each other, range=1, plus noise</p>
-<p>A crude annealing program</p>
-<p id="Threshold"></p>
+<p>A simple annealing program - similarly colored pixels are attracted to each other, range=1, plus noise</p>
+<p>Noise level <span id="Threshold"></span></p>
 
-<p>
-<select  id="select1" name=select1 onchange='OnChange(this);'>
+
+<p>Grid Size 
+<select  id="select1" name=select1 onchange='OnChange();'>
 <option>4</option>
 <option>5</option>
 <option>6</option>
@@ -18,8 +18,22 @@
 <option>10</option>
 <option>12</option>
 <option>20</option>
+<option>25</option>
+<option>30</option>
+<option>40</option>
 
 </select>
+&nbsp;&nbsp;&nbsp;&nbsp;
+Color Space:
+<select  id="select2" name=select2 onchange='OnChange();'>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>8</option>
+<option>255</option>
+
+</select>
+
 </p>
 
 <div>
