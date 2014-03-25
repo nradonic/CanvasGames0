@@ -125,7 +125,8 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var DiffLg = gSum;
 	var DiffLb = bSum;
 	var noDiffL = DiffLr*DiffLr +DiffLg*DiffLg + DiffLb*DiffLb;
-	var NoChangeDiff = noDiffL+noDiffR;
+	//var NoChangeDiff = noDiffL+noDiffR;
+	var NoChangeDiff = Math.min(noDiffL,noDiffR);
 	
 	rSum = SRr;
 	gSum = SRg;
@@ -144,7 +145,8 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	DiffLg = gSum;
 	DiffLb = bSum;
 	var swapDiffL = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
-	var SwapDiff = swapDiffR+swapDiffL;
+//	var SwapDiff = swapDiffR+swapDiffL;
+	var SwapDiff = Math.min(swapDiffR, swapDiffL);
 	
 	var Bbool =  SwapDiff<NoChangeDiff;
     Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
