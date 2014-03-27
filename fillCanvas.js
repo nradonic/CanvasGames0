@@ -2,6 +2,7 @@ function rand1(ColorSpace){
 	return Math.floor(Math.floor(Math.random()*ColorSpace)*255/(ColorSpace-1));
 }
 
+var screenDraw = 0;
 var flipThreshold = 0.5;
 var gridSize = 3;
 var gridSize2 = gridSize*gridSize;
@@ -25,7 +26,7 @@ function OnChange()
     
     for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(ColorSpace),rand1(ColorSpace),rand1(ColorSpace));} 
     flipThreshold =0.5; 
-    
+    screenDraw = 0;
     
     return true;
 }
@@ -63,17 +64,18 @@ function swapTestEdge(STi, STj, incStep){
 	var two = indexST+2*incStep;
 	var tff = 255;
 	
-	var STLr = tff - Math.abs(dataGrid[zero].r-dataGrid[one].r);
-	var STLg = tff - Math.abs(dataGrid[zero].g-dataGrid[one].g);
-	var STLb = tff - Math.abs(dataGrid[zero].b-dataGrid[one].b);
+	var STLr = dataGrid[zero].r-dataGrid[one].r;
+	var STLg = dataGrid[zero].g-dataGrid[one].g;
+	var STLb = dataGrid[zero].b-dataGrid[one].b;
     var STLeft = STLr*STLr +STLg*STLg+STLb*STLb;
 
-	var STRr = tff - Math.abs(dataGrid[two].r-dataGrid[zero].r);
-	var STRg = tff - Math.abs(dataGrid[two].g-dataGrid[zero].g);
-	var STRb = tff - Math.abs(dataGrid[two].b-dataGrid[zero].b);
+	var STRr = dataGrid[two].r-dataGrid[zero].r;
+	var STRg = dataGrid[two].g-dataGrid[zero].g;
+	var STRb = dataGrid[two].b-dataGrid[zero].b;
     var STRight = STRr*STRr +STRg*STRg +STRb*STRb;
-    var Bbool =  STRight>STLeft; 
-    Bbool = (Math.random()>flipThreshold)||Bbool;
+    var Bbool =  STRight<STLeft; 
+    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
+
     return Bbool;
 };
 	
@@ -149,43 +151,11 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var SwapDiff = Math.min(swapDiffR, swapDiffL);
 	
 	var Bbool =  SwapDiff<NoChangeDiff;
-    Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
+    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
     return Bbool;
 
 }	
 	
-function swapTest(STi, STj, incStep){
-	var indexST = calculateIndexST(STi, STj);
-	var zero = indexST;
-	var one = indexST+incStep;
-	var two = indexST+2*incStep;
-	var three = indexST+3*incStep;
-	var tff = 255;
-		
-	var STLr = tff - Math.abs(dataGrid[zero].r-dataGrid[one].r);
-	var STLg = tff - Math.abs(dataGrid[zero].g-dataGrid[one].g);
-	var STLb = tff - Math.abs(dataGrid[zero].b-dataGrid[one].b);
-	
-	var STRr = tff - Math.abs(dataGrid[two].r-dataGrid[three].r);
-	var STRg = tff - Math.abs(dataGrid[two].g-dataGrid[three].g);
-	var STRb = tff - Math.abs(dataGrid[two].b-dataGrid[three].b);
-		
-    var STLeft = STLr*STLr +STLg*STLg +STLb*STLb +STRr*STRr +STRg*STRg +STRb*STRb;
-
-	STLr = dataGrid[three].r-dataGrid[one].r;
-	STLg = dataGrid[three].g-dataGrid[one].g;
-	STLb = dataGrid[three].b-dataGrid[one].b;
-	
-	STRr = dataGrid[two].r-dataGrid[zero].r;
-	STRg = dataGrid[two].g-dataGrid[zero].g;
-	STRb = dataGrid[two].b-dataGrid[zero].b;
-
-	var STRight = STLr*STLr +STLg*STLg +STLb*STLb +STRr*STRr +STRg*STRg +STRb*STRb;
-	var Bbool =  STRight>STLeft;
-    Bbool = (Math.random()<flipThreshold)||Bbool && Math.random()<0.1;
-    return Bbool;
-};		
-
 function swapCells(STi, STj, incStep){
 	var indexST = calculateIndexST(STi, STj);
 	var zero = indexST;
@@ -210,7 +180,7 @@ function interiorHorizontal(){	// internal box i=row, j=columns
 	for(var i=0; i<gridSize-2;i++){
 		for(var j=0; j< gridSize-3;j++){
 			//if(swapTest(i,j,1)){swapCells(i,j,1);}
-			if(swatTest2D(i,j,1,gridSize)){swapCells(i+1,j,1);}
+			if(swatTest2D(i,j,1,gridSize)){swapCells(i+1,j+1,1);}
 		}
 	}
 }
@@ -218,7 +188,7 @@ function interiorHorizontal(){	// internal box i=row, j=columns
 function interiorVertical(){
 	for(var i=0; i<gridSize-3;i++){
 		for(var j=0; j< gridSize-2;j++){
-			if(swapTest(i,j,gridSize,1)){swapCells(i,j,gridSize);}
+			if(swatTest2D(i,j,gridSize,1)){swapCells(i+1,j+1,gridSize);}
 		}
 	}
 }
@@ -237,8 +207,10 @@ function edgewalk(){	// left side
 }
 
 function smooth(){
+	screenDraw++;
 	flipThreshold = flipThreshold*0.95;
 	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
+	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	interiorHorizontal();
 	interiorVertical();
 	edgewalk();
