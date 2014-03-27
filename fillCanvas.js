@@ -4,29 +4,35 @@ function rand1(ColorSpace){
 
 var screenDraw = 0;
 var flipThreshold = 0.5;
+var screenDelay=1;
 var gridSize = 3;
 var gridSize2 = gridSize*gridSize;
+var serviceFlag = true; // set when operating parameters change
+var Pause = false; // Pause Play button state
+
 function gridCell(rc,gc,bc){this.r=rc,this.g=gc,this.b=bc};
 
 var dataGrid = new Array(gridSize2);
 
 function OnChange()
 {
-	var dropdownSize = document.getElementById("select1")
-    var myindex  = dropdownSize.selectedIndex;
-    var SelValue = dropdownSize.options[myindex].value;
-    gridSize = parseInt(SelValue);
+	var dropdownSize = document.getElementById("select1");
+    var dropdownColor = document.getElementById("select2");
+    var dropdownDelay = document.getElementById("select3");
+
+    gridSize = parseInt(dropdownSize.options[dropdownSize.selectedIndex].value);
     gridSize2 = gridSize*gridSize;   
     dataGrid = new Array(gridSize2);
     
-    var dropdownColor = document.getElementById("select2")
-    var mycolors  = dropdownColor.selectedIndex;
-    var SelColorValue = dropdownColor.options[mycolors].value;
-    var ColorSpace = parseInt(SelColorValue);
+    var ColorSpace = parseInt(dropdownColor.options[dropdownColor.selectedIndex].value);
+    
+    screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
     
     for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(ColorSpace),rand1(ColorSpace),rand1(ColorSpace));} 
+    
     flipThreshold =0.5; 
     screenDraw = 0;
+    serviceFlag = true;
     
     return true;
 }
@@ -219,10 +225,33 @@ function smooth(){
 function cycle(myVarr){
 	smooth();
 	drawCanvas1(); 
+	if(serviceFlag){
+		clearInterval(myVarr);
+		start();
+	}
 }
 
-OnChange(document.getElementById("select1"));
+var myVar;
+
+function start(){
+	myVar=setInterval(function(){cycle(myVar)},screenDelay);
+}
+function stop(){}
+
+function PausePlay(){
+	Pause = !Pause;
+	if(Pause){clearInterval(myVar);
+		document.getElementById("PausePlay").innerHTML="Play";
+	}
+	if(!Pause){start();
+		
+		document.getElementById("PausePlay").innerHTML="Pause";
+	}
+	
+}
+
+OnChange();
 drawCanvas1();
-var myVar=setInterval(function(){cycle(myVar)},1000);
+start();
 
 //smooth();

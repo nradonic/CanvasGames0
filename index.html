@@ -1,18 +1,35 @@
 <!doctype html>
 <head>
-<title>Home on WallEye</title>
+<meta name="description" content="Color Annealing Process">
+<meta name="keywords" content="HTML,CSS,Canvas,JavaScript">
+<meta name="author" content="Nick Radonic nick@radonic.us">
+<title>Color Annealing</title>
+
 <link rel="stylesheet" type="text/css" href="fillCanvas.css">
+<link rel="SHORTCUT ICON" href="../radonicimages/happy.ico">
 </head>
+
 <body>
-<p>Hello http://localhost/canvasgames/</p>
-<p>A simple annealing program - similarly colored pixels are attracted to each other, range=1, plus noise </p>
-<p>Noise level <span id="Threshold"></span><span width="200px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;</span> Screen Draw: <span id="screenDraw"></span></p>
+<h1>Visual Annealing Process - Melding Closest Color Neighbors</h1>
+<div id="info">
+	<h3>Nick Radonic <img src="../radonicimages/OffsetHappyFace.png"</h3>
+	<br>www.radonic.us/CanvasGames/
+	<br>nick@radonic.us
+	<br>March 2014
+</div>
+<p>A simple annealing program - similarly colored neighboring pixels are attracted to each other, range=1, plus noise </p>
+<p>Noise level <span id="Threshold"></span>
+<span width="200px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+ Screen Draw: <span id="screenDraw"></span>
+<span width="200px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+
+</p>
 
 
 <p>Grid Size 
 <select  id="select1" name=select1 onchange='OnChange();'>
-<option>4</option>
+<option selected>4</option>
 <option>5</option>
 <option>6</option>
 <option>8</option>
@@ -22,19 +39,33 @@
 <option>25</option>
 <option>30</option>
 <option>40</option>
+<option>50</option>
+<option>80</option>
 
 </select>
 &nbsp;&nbsp;&nbsp;&nbsp;
 Color Space:
 <select  id="select2" name=select2 onchange='OnChange();'>
-<option>2</option>
+<option selected>2</option>
 <option>3</option>
 <option>4</option>
 <option>8</option>
 <option>255</option>
 
 </select>
+&nbsp;&nbsp;&nbsp;&nbsp;
+Delay:
+<select  id="select3" name=select3 onchange='OnChange();'>
+<option>1</option>
+<option>3</option>
+<option selected>10</option>
+<option>30</option>
+<option>100</option>
+<option>300</option>
+<option>1000</option>
 
+</select>
+&nbsp;&nbsp;&nbsp;&nbsp; <button  id="PausePlay" onclick='PausePlay();'>Pause/Play</button> 
 </p>
 
 <div>
