@@ -1,6 +1,4 @@
-function rand1(ColorSpace){
-	return Math.floor(Math.floor(Math.random()*ColorSpace)*255/(ColorSpace-1));
-}
+
 
 var screenDraw = 0;
 var flipThreshold = 0.5;
@@ -9,6 +7,12 @@ var gridSize = 3;
 var gridSize2 = gridSize*gridSize;
 var serviceFlag = true; // set when operating parameters change
 var Pause = false; // Pause Play button state
+var ColorSpace = 2;
+var ColorScale = 255;
+
+function rand1(){
+	return Math.floor(Math.random()*ColorSpace)*ColorScale;
+}
 
 function gridCell(rc,gc,bc){this.r=rc,this.g=gc,this.b=bc};
 
@@ -18,17 +22,19 @@ function OnChange()
 {
 	var dropdownSize = document.getElementById("select1");
     var dropdownColor = document.getElementById("select2");
-    var dropdownDelay = document.getElementById("select3");
+    //var dropdownDelay = document.getElementById("select3");
 
     gridSize = parseInt(dropdownSize.options[dropdownSize.selectedIndex].value);
     gridSize2 = gridSize*gridSize;   
     dataGrid = new Array(gridSize2);
     
-    var ColorSpace = parseInt(dropdownColor.options[dropdownColor.selectedIndex].value);
+    ColorSpace = parseInt(dropdownColor.options[dropdownColor.selectedIndex].value);
+    ColorScale = Math.floor(255/(ColorSpace-1));
     
-    screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
+    //screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
+    cycleDelay();
     
-    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(ColorSpace),rand1(ColorSpace),rand1(ColorSpace));} 
+    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(),0,0);} 
     
     flipThreshold =0.5; 
     screenDraw = 0;
@@ -78,14 +84,14 @@ function swapTestEdge(STi, STj, incStep){
 	var STRr = dataGrid[two].r-dataGrid[zero].r;
 	var STRg = dataGrid[two].g-dataGrid[zero].g;
 	var STRb = dataGrid[two].b-dataGrid[zero].b;
-    var STRight = STRr*STRr +STRg*STRg +STRb*STRb;
+    var STRight = STRr*STRr * STRg*STRg * STRb*STRb;
     var Bbool =  STRight<STLeft; 
-    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
+    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
 
     return Bbool;
 };
 	
-function swatTest2D(STi, STj, incStep, incLateral){
+function swapTest2D(STi, STj, incStep, incLateral){
 	var tff = 255;
 	var rSum=0;
 	var gSum=0;
@@ -115,7 +121,7 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var DiffRr = rSum;
 	var DiffRg = gSum;
 	var DiffRb = bSum;
-	var noDiffR = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	var noDiffR = DiffRr*DiffRr *DiffRg*DiffRg * DiffRb*DiffRb;
 	
 	times(0); // clear data
 	addRGB(indexST);
@@ -132,7 +138,7 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	var DiffLr = rSum;
 	var DiffLg = gSum;
 	var DiffLb = bSum;
-	var noDiffL = DiffLr*DiffLr +DiffLg*DiffLg + DiffLb*DiffLb;
+	var noDiffL = DiffLr*DiffLr * DiffLg*DiffLg * DiffLb*DiffLb;
 	//var NoChangeDiff = noDiffL+noDiffR;
 	var NoChangeDiff = Math.min(noDiffL,noDiffR);
 	
@@ -143,7 +149,7 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	DiffRr = rSum;
 	DiffRg = gSum;
 	DiffRb = bSum;
-	var swapDiffR = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	var swapDiffR = DiffRr*DiffRr * DiffRg*DiffRg * DiffRb*DiffRb;
 	
 	rSum = SLr;
 	gSum = SLg;
@@ -152,15 +158,55 @@ function swatTest2D(STi, STj, incStep, incLateral){
 	DiffLr = rSum;
 	DiffLg = gSum;
 	DiffLb = bSum;
-	var swapDiffL = DiffRr*DiffRr +DiffRg*DiffRg + DiffRb*DiffRb;
+	var swapDiffL = DiffRr*DiffRr * DiffRg*DiffRg * DiffRb*DiffRb;
 //	var SwapDiff = swapDiffR+swapDiffL;
 	var SwapDiff = Math.min(swapDiffR, swapDiffL);
 	
 	var Bbool =  SwapDiff<NoChangeDiff;
-    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
+    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
     return Bbool;
 
 }	
+
+function test(nl,nr,sl,sr){
+	var maxS = Math.max(sl,sr);
+	var minS = Math.min(sl,sr);
+	var minN = Math.min(nl,nr);
+	var minA = Math.min(nl,nr,sl,sr);
+	if(maxS<minN){return true;}
+	if(minN<minS){return false;}
+	if(sr===minA && sr===nr && nl<=sl){return false;}
+	if(sl===minA && sl===nl && nr<=sr){return false;}
+	if(sr===minA && sr===nr && nl>sl){return true;}
+	if(sl===minA && sl===nl && nr>sr){return true;}
+	if(minS<minN){return true;}
+	
+	return false;
+}
+function swapTest2DA(STi, STj, incStep, incLateral){
+	function diffSQ(ST1,ST2){
+		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
+		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
+		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
+		return rd*rd+gd*gd+bd*bd;
+	}
+	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
+	var indexR = indexST+2*incStep+incLateral;
+	var indexL = indexST+incStep+incLateral;
+	
+	var minNoChangeR = Math.min(diffSQ(indexR,indexST+incStep)*2,diffSQ(indexR,indexST+2*incStep), diffSQ(indexR, indexST+3*incStep)*2, diffSQ(indexR, indexST+3*incStep+incLateral), diffSQ(indexR, indexST+3*incStep+incLateral*2)*2, diffSQ(indexR, indexST+2*incStep+incLateral*2),diffSQ(indexR,indexST+incStep+2*incLateral));
+
+	var minNoChangeL = Math.min(diffSQ(indexL,indexST+2*incStep)*2,diffSQ(indexL,indexST)*2, diffSQ(indexL, indexST+incStep),diffSQ(indexL, indexST+incLateral), diffSQ(indexL, indexST+incLateral*2)*2, diffSQ(indexL, indexST+incStep+incLateral*2),diffSQ(indexL,indexST+2*incStep+2*incLateral)*2);
+
+	var minSwapR = Math.min(diffSQ(indexL,indexST+incStep)*2,diffSQ(indexL,indexST+2*incStep), diffSQ(indexL, indexST+3*incStep)*2, diffSQ(indexL, indexST+3*incStep+incLateral), diffSQ(indexL, indexST+3*incStep+incLateral*2)*2, diffSQ(indexL, indexST+2*incStep+incLateral*2),diffSQ(indexL,indexST+incStep+2*incLateral)*2);
+
+	var minSwapL = Math.min(diffSQ(indexR,indexST+2*incStep)*2, diffSQ(indexR,indexST)*2, diffSQ(indexR, indexST+incStep),diffSQ(indexR, indexST+incLateral), diffSQ(indexR, indexST+incLateral*2)*2, diffSQ(indexR, indexST+incStep+incLateral*2),diffSQ(indexR,indexST+2*incStep+2*incLateral)*2);
+
+	var Bbool = test(minNoChangeL, minNoChangeR, minSwapL, minSwapR);
+    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
+    return Bbool;
+}	
+	
 	
 function swapCells(STi, STj, incStep){
 	var indexST = calculateIndexST(STi, STj);
@@ -179,14 +225,14 @@ function swapCells(STi, STj, incStep){
 	dataGrid[two].r=r;
 	dataGrid[two].g=g;
 	dataGrid[two].b=b;
-	drawCanvas1();
+	//drawCanvas1();
 };
 
 function interiorHorizontal(){	// internal box i=row, j=columns
 	for(var i=0; i<gridSize-2;i++){
 		for(var j=0; j< gridSize-3;j++){
 			//if(swapTest(i,j,1)){swapCells(i,j,1);}
-			if(swatTest2D(i,j,1,gridSize)){swapCells(i+1,j+1,1);}
+			if(swapTest2DA(i,j,1,gridSize)){swapCells(i+1,j+1,1);}
 		}
 	}
 }
@@ -194,7 +240,7 @@ function interiorHorizontal(){	// internal box i=row, j=columns
 function interiorVertical(){
 	for(var i=0; i<gridSize-3;i++){
 		for(var j=0; j< gridSize-2;j++){
-			if(swatTest2D(i,j,gridSize,1)){swapCells(i+1,j+1,gridSize);}
+			if(swapTest2DA(i,j,gridSize,1)){swapCells(i+1,j+1,gridSize);}
 		}
 	}
 }
@@ -236,18 +282,19 @@ var myVar;
 function start(){
 	myVar=setInterval(function(){cycle(myVar)},screenDelay);
 }
-function stop(){}
+
+function stop(){clearInterval(myVar);}
+
+function cycleDelay(){
+	var dropdownDelay = document.getElementById("select3");
+	screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
+	serviceFlag = true;
+}
 
 function PausePlay(){
 	Pause = !Pause;
-	if(Pause){clearInterval(myVar);
-		document.getElementById("PausePlay").innerHTML="Play";
-	}
-	if(!Pause){start();
-		
-		document.getElementById("PausePlay").innerHTML="Pause";
-	}
-	
+	if(Pause){stop(); document.getElementById("PausePlay").innerHTML="Play";}
+	if(!Pause){start();	document.getElementById("PausePlay").innerHTML="Pause";}
 }
 
 OnChange();
