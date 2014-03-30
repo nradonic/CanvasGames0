@@ -34,7 +34,7 @@ function OnChange()
     //screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
     cycleDelay();
     
-    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(),0,0);} 
+    for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(),rand1(),rand1());} 
     
     flipThreshold =0.5; 
     screenDraw = 0;
