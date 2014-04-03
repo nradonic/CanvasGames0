@@ -322,7 +322,7 @@ function edgewalk(){	// left side
 function smooth(){
 	screenDraw++;
 	if(flipThreshold>0.000001){flipThreshold= flipThreshold*0.95;}
-	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
+	//document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	middleSwap();
 	//interiorHorizontal();
