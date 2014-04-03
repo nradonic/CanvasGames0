@@ -15,8 +15,8 @@ function rand1(){
 	return Math.floor(Math.random()*ColorSpace)*ColorScale;
 }
 
-function randGridSize(){
-	var a = Math.floor(Math.random()*(gridSize -2))+1;
+function randGS(gridSizeX){
+	var a = Math.floor(Math.random()*gridSizeX);
 	return a;
 }
 
@@ -62,8 +62,8 @@ function drawCanvas1(){
 		var squareRow = Math.floor(i/gridSize);
 		var squareCol = Math.floor(i%gridSize);
 
-		var x = squareRow*squareSide;
-		var y = squareCol*squareSide;
+		var y = squareRow*squareSide;
+		var x = squareCol*squareSide;
 		
 		var t='rgba('+dataGrid[i].r+','+ dataGrid[i].g+','+dataGrid[i].b+',255)';
 		ctx.fillStyle = t;
@@ -219,14 +219,19 @@ function swapTest2DA(STi, STj, incStep, incLateral){
 function fitColor(i1,j1,i2,j2){
 	var ST1 = i1*gridSize+j1;
 	var ST2 = i2*gridSize+j2;
-	var total = diffSQ(ST1, ST2-1);
-	total = diffSQ(ST1,ST2-gridSize-1);
-	total = diffSQ(ST1,ST2-gridSize);
-	total = diffSQ(ST1,ST2-gridSize+1);
-	total = diffSQ(ST1,ST2+1);
-	total = diffSQ(ST1,ST2+gridSize-1);
-	total = diffSQ(ST1,ST2+gridSize);
-	total = diffSQ(ST1,ST2+gridSize+1);
+	var edge = gridSize-1;
+	
+	var total = 0;
+	var cnt = 0;
+	if(j2!== 0){total = diffSQ(ST1, ST2-1); cnt++;}
+	if(i2!==0 && j2!==0){total += diffSQ(ST1,ST2-gridSize-1); cnt++;}//2;
+	if(i2!==0){total += diffSQ(ST1,ST2-gridSize); cnt++;}
+	if(i2!==0 && j2!==edge){total += diffSQ(ST1,ST2-gridSize+1); cnt++;}///2;
+	if(j2!==edge){total += diffSQ(ST1,ST2+1); cnt++;}
+	if(i2!==edge && j2!==0){total += diffSQ(ST1,ST2+gridSize-1); cnt++;}//2;
+	if(i2!==edge){total += diffSQ(ST1,ST2+gridSize); cnt++;}
+	if(i2!==edge && j2!==edge){total += diffSQ(ST1,ST2+gridSize+1); cnt++;}//2;
+	return total/cnt;
 }
 
 function trade(i1,j1,i2,j2){
@@ -292,23 +297,25 @@ function interiorVertical(){
 }
 
 function middleSwap(){
-	var iIndex1 = randGridSize();
-	var jIndex1 = randGridSize();
-	var iIndex2 = randGridSize();
-	var jIndex2 = randGridSize();
-	testSwapSpaces(iIndex1,jIndex1,iIndex2,jIndex2);
-}
+for (i=0;i<gridSize;i++){
+	var iIndex1 = randGS(gridSize);
+	var jIndex1 = randGS(gridSize);
+	var iIndex2 = randGS(gridSize);
+	var jIndex2 = randGS(gridSize);
+	if(iIndex1!==iIndex2 && jIndex1!==jIndex2){	testSwapSpaces(iIndex1,jIndex1,iIndex2,jIndex2);}
+}}
 
 function edgewalk(){	// left side
 	for ( var i = 0; i< gridSize; i++){
+		var x = Math.floor(Math.random()*gridSize);
 		//left edge increment=1
-		if(swapTestEdge(i,2,-1)){swapCells(i, 2, -1);}
+		if(swapTestEdge(x,2,-1)){swapCells(x, 2, -1);}
 		//right edge increment=-4
-		if(swapTestEdge(i,gridSize-3,1)){swapCells(i, gridSize-3, 1);}
+		if(swapTestEdge(x,gridSize-3,1)){swapCells(x, gridSize-3, 1);}
 		//top edge increment=gridSize
-		if(swapTestEdge(2,i,-gridSize)){swapCells(2, i, -gridSize);}
+		if(swapTestEdge(2,x,-gridSize)){swapCells(2, x, -gridSize);}
 		//bottom edge increment=-gridSize
-		if(swapTestEdge(gridSize-3, i,gridSize)){swapCells(gridSize-3, i, gridSize);}
+		if(swapTestEdge(gridSize-3, x,gridSize)){swapCells(gridSize-3, x, gridSize);}
 	}		
 }
 
@@ -318,9 +325,9 @@ function smooth(){
 	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	middleSwap();
-	interiorHorizontal();
-	interiorVertical();
-	edgewalk();
+	//interiorHorizontal();
+	//interiorVertical();
+	//edgewalk();
 }
 
 function cycle(myVarr){
