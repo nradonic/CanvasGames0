@@ -171,38 +171,38 @@ function swapTest2D(STi, STj, incStep, incLateral){
 function test(nl,nr,sl,sr){
 	var maxS = Math.max(sl,sr);
 	var minS = Math.min(sl,sr);
-	var minN = Math.min(nl,nr);
-	var minA = Math.min(nl,nr,sl,sr);
-	if(maxS<minN){return true;}
-	if(minN<minS){return false;}
-	if(sr===minA && sr===nr && nl<=sl){return false;}
-	if(sl===minA && sl===nl && nr<=sr){return false;}
-	if(sr===minA && sr===nr && nl>sl){return true;}
-	if(sl===minA && sl===nl && nr>sr){return true;}
-	if(minS<minN){return true;}
+	var maxN = Math.max(nl,nr);
+	var maxA = Math.max(nl,nr,sl,sr);
+	if(minS>maxN){return true;}
+	if(maxN>maxS){return false;}
+	if(sr===maxA && sr===nr && nl>=sl){return false;}
+	if(sl===maxA && sl===nl && nr>=sr){return false;}
+	if(sr===maxA && sr===nr && nl<sl){return true;}
+	if(sl===maxA && sl===nl && nr<sr){return true;}
+	if(maxS>maxN){return true;} 
 	
 	return false;
 }
 function swapTest2DA(STi, STj, incStep, incLateral){
 	function diffSQ(ST1,ST2){
-		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
-		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
-		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
+		var rd = 255 - Math.abs(dataGrid[ST1].r-dataGrid[ST2].r);
+		var gd = 255 - Math.abs(dataGrid[ST1].g-dataGrid[ST2].g);
+		var bd = 255 - Math.abs(dataGrid[ST1].b-dataGrid[ST2].b);
 		return rd*rd+gd*gd+bd*bd;
 	}
 	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
 	var indexR = indexST+2*incStep+incLateral;
 	var indexL = indexST+incStep+incLateral;
 	
-	var minNoChangeR = Math.min(diffSQ(indexR,indexST+incStep)*2,diffSQ(indexR,indexST+2*incStep), diffSQ(indexR, indexST+3*incStep)*2, diffSQ(indexR, indexST+3*incStep+incLateral), diffSQ(indexR, indexST+3*incStep+incLateral*2)*2, diffSQ(indexR, indexST+2*incStep+incLateral*2),diffSQ(indexR,indexST+incStep+2*incLateral));
+	var NoChangeR = diffSQ(indexR,indexST+incStep)+diffSQ(indexR,indexST+2*incStep)*2+ diffSQ(indexR, indexST+3*incStep)+ diffSQ(indexR, indexST+3*incStep+incLateral)*2+ diffSQ(indexR, indexST+3*incStep+incLateral*2)+ diffSQ(indexR, indexST+2*incStep+incLateral*2)*2+diffSQ(indexR,indexST+incStep+2*incLateral);
 
-	var minNoChangeL = Math.min(diffSQ(indexL,indexST+2*incStep)*2,diffSQ(indexL,indexST)*2, diffSQ(indexL, indexST+incStep),diffSQ(indexL, indexST+incLateral), diffSQ(indexL, indexST+incLateral*2)*2, diffSQ(indexL, indexST+incStep+incLateral*2),diffSQ(indexL,indexST+2*incStep+2*incLateral)*2);
+	var NoChangeL = diffSQ(indexL,indexST+2*incStep)+diffSQ(indexL,indexST)+ diffSQ(indexL, indexST+incStep)*2+ diffSQ(indexL, indexST+incLateral)*2+ diffSQ(indexL, indexST+incLateral*2)+ diffSQ(indexL, indexST+incStep+incLateral*2)*2+diffSQ(indexL,indexST+2*incStep+2*incLateral);
 
-	var minSwapR = Math.min(diffSQ(indexL,indexST+incStep)*2,diffSQ(indexL,indexST+2*incStep), diffSQ(indexL, indexST+3*incStep)*2, diffSQ(indexL, indexST+3*incStep+incLateral), diffSQ(indexL, indexST+3*incStep+incLateral*2)*2, diffSQ(indexL, indexST+2*incStep+incLateral*2),diffSQ(indexL,indexST+incStep+2*incLateral)*2);
+	var SwapR = diffSQ(indexL,indexST+incStep)+diffSQ(indexL,indexST+2*incStep)*2 +diffSQ(indexL, indexST+3*incStep)+ diffSQ(indexL, indexST+3*incStep+incLateral)*2+ diffSQ(indexL, indexST+3*incStep+incLateral*2)+ diffSQ(indexL, indexST+2*incStep+incLateral*2)*2+diffSQ(indexL,indexST+incStep+2*incLateral);
 
-	var minSwapL = Math.min(diffSQ(indexR,indexST+2*incStep)*2, diffSQ(indexR,indexST)*2, diffSQ(indexR, indexST+incStep),diffSQ(indexR, indexST+incLateral), diffSQ(indexR, indexST+incLateral*2)*2, diffSQ(indexR, indexST+incStep+incLateral*2),diffSQ(indexR,indexST+2*incStep+2*incLateral)*2);
+	var SwapL = diffSQ(indexR,indexST+2*incStep)+ diffSQ(indexR,indexST)+ diffSQ(indexR, indexST+incStep)*2+diffSQ(indexR, indexST+incLateral)*2+  diffSQ(indexR, indexST+incLateral*2)+ diffSQ(indexR, indexST+incStep+incLateral*2)*2+diffSQ(indexR,indexST+2*incStep+2*incLateral);
 
-	var Bbool = test(minNoChangeL, minNoChangeR, minSwapL, minSwapR);
+	var Bbool = test(NoChangeL, NoChangeR, SwapL, SwapR);
     Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
     return Bbool;
 }	
