@@ -9,6 +9,7 @@ var serviceFlag = true; // set when operating parameters change
 var Pause = false; // Pause Play button state
 var ColorSpace = 2;
 var ColorScale = 255;
+var maxTest = 3*255*255;
 
 function rand1(){
 	return Math.floor(Math.random()*ColorSpace)*ColorScale;
@@ -185,10 +186,10 @@ function test(nl,nr,sl,sr){
 }
 function swapTest2DA(STi, STj, incStep, incLateral){
 	function diffSQ(ST1,ST2){
-		var rd = 255 - Math.abs(dataGrid[ST1].r-dataGrid[ST2].r);
-		var gd = 255 - Math.abs(dataGrid[ST1].g-dataGrid[ST2].g);
-		var bd = 255 - Math.abs(dataGrid[ST1].b-dataGrid[ST2].b);
-		return rd*rd+gd*gd+bd*bd;
+		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
+		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
+		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
+		return maxTest - rd*rd+gd*gd+bd*bd;
 	}
 	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
 	var indexR = indexST+2*incStep+incLateral;
