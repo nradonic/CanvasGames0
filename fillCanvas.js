@@ -3,7 +3,7 @@
 var screenDraw = 0;
 var flipThreshold = 0.5;
 var screenDelay=1;
-var gridSize = 3;
+var gridSize = 4;
 var gridSize2 = gridSize*gridSize;
 var serviceFlag = true; // set when operating parameters change
 var Pause = false; // Pause Play button state
@@ -13,6 +13,11 @@ var maxTest = 3*255*255;
 
 function rand1(){
 	return Math.floor(Math.random()*ColorSpace)*ColorScale;
+}
+
+function randGridSize(){
+	var a = Math.floor(Math.random()*(gridSize -2))+1;
+	return a;
 }
 
 function gridCell(rc,gc,bc){this.r=rc,this.g=gc,this.b=bc};
@@ -184,13 +189,16 @@ function test(nl,nr,sl,sr){
 	
 	return false;
 }
-function swapTest2DA(STi, STj, incStep, incLateral){
-	function diffSQ(ST1,ST2){
+
+function diffSQ(ST1,ST2){
 		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
 		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
 		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
 		return maxTest - (rd*rd+gd*gd+bd*bd);
 	}
+
+function swapTest2DA(STi, STj, incStep, incLateral){
+	
 	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
 	var indexR = indexST+2*incStep+incLateral;
 	var indexL = indexST+incStep+incLateral;
@@ -207,7 +215,44 @@ function swapTest2DA(STi, STj, incStep, incLateral){
     Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
     return Bbool;
 }	
+
+function fitColor(i1,j1,i2,j2){
+	var ST1 = i1*gridSize+j1;
+	var ST2 = i2*gridSize+j2;
+	var total = diffSQ(ST1, ST2-1);
+	total = diffSQ(ST1,ST2-gridSize-1);
+	total = diffSQ(ST1,ST2-gridSize);
+	total = diffSQ(ST1,ST2-gridSize+1);
+	total = diffSQ(ST1,ST2+1);
+	total = diffSQ(ST1,ST2+gridSize-1);
+	total = diffSQ(ST1,ST2+gridSize);
+	total = diffSQ(ST1,ST2+gridSize+1);
+}
+
+function trade(i1,j1,i2,j2){
+	var one = i1*gridSize+j1;
+	var two = i2*gridSize+j2;
 	
+	var r = dataGrid[one].r;
+	var g = dataGrid[one].g;
+	var b = dataGrid[one].b;
+	
+	dataGrid[one].r=dataGrid[two].r;
+	dataGrid[one].g=dataGrid[two].g;
+	dataGrid[one].b=dataGrid[two].b;
+	
+	dataGrid[two].r=r;
+	dataGrid[two].g=g;
+	dataGrid[two].b=b;
+}	
+	
+function testSwapSpaces(i1,j1,i2,j2){
+	var OneAtOne = fitColor(i1,j1,i1,j1);
+	var TwoAtTwo = fitColor(i2,j2,i2,j2);
+	var OneAtTwo = fitColor(i1,j1,i2,j2);
+	var TwoAtOne = fitColor(i2,j2,i1,j1);
+	if(Math.max(OneAtOne,TwoAtTwo)<Math.max(OneAtTwo,TwoAtOne)){trade(i1,j1,i2,j2);}
+}	
 	
 function swapCells(STi, STj, incStep){
 	var indexST = calculateIndexST(STi, STj);
@@ -246,6 +291,14 @@ function interiorVertical(){
 	}
 }
 
+function middleSwap(){
+	var iIndex1 = randGridSize();
+	var jIndex1 = randGridSize();
+	var iIndex2 = randGridSize();
+	var jIndex2 = randGridSize();
+	testSwapSpaces(iIndex1,jIndex1,iIndex2,jIndex2);
+}
+
 function edgewalk(){	// left side
 	for ( var i = 0; i< gridSize; i++){
 		//left edge increment=1
@@ -264,6 +317,7 @@ function smooth(){
 	if(flipThreshold>0.000001){flipThreshold= flipThreshold*0.95;}
 	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
+	middleSwap();
 	interiorHorizontal();
 	interiorVertical();
 	edgewalk();
