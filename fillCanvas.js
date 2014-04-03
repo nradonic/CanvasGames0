@@ -189,7 +189,7 @@ function swapTest2DA(STi, STj, incStep, incLateral){
 		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
 		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
 		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
-		return maxTest - rd*rd+gd*gd+bd*bd;
+		return maxTest - (rd*rd+gd*gd+bd*bd);
 	}
 	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
 	var indexR = indexST+2*incStep+incLateral;
@@ -204,7 +204,7 @@ function swapTest2DA(STi, STj, incStep, incLateral){
 	var SwapL = diffSQ(indexR,indexST+2*incStep)+ diffSQ(indexR,indexST)+ diffSQ(indexR, indexST+incStep)*2+diffSQ(indexR, indexST+incLateral)*2+  diffSQ(indexR, indexST+incLateral*2)+ diffSQ(indexR, indexST+incStep+incLateral*2)*2+diffSQ(indexR,indexST+2*incStep+2*incLateral);
 
 	var Bbool = test(NoChangeL, NoChangeR, SwapL, SwapR);
-    Bbool = (Math.random()<flipThreshold)||Bbool && (Math.random()<0.1);
+    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
     return Bbool;
 }	
 	
@@ -261,7 +261,7 @@ function edgewalk(){	// left side
 
 function smooth(){
 	screenDraw++;
-	flipThreshold = flipThreshold*0.95;
+	if(flipThreshold>0.000001){flipThreshold= flipThreshold*0.95;}
 	document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	interiorHorizontal();
