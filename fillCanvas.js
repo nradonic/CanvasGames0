@@ -194,7 +194,7 @@ function diffSQ(ST1,ST2){
 		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
 		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
 		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
-		return maxTest - (rd*rd+gd*gd+bd*bd);
+		return maxTest - (rd*rd*1.1+gd*gd+bd*bd*.9);
 	}
 
 function swapTest2DA(STi, STj, incStep, incLateral){
