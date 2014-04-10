@@ -1,7 +1,6 @@
 // CanvasGames - Annealing of colors - swapping two cell values if it is a better color match
 
 var screenDraw = 0;
-var flipThreshold = 0.5;
 var screenDelay=1;
 var gridSize = 4;
 var gridSize2 = gridSize*gridSize;
@@ -42,7 +41,6 @@ function OnChange()
     
     for(i=0;i<gridSize2;i++){dataGrid[i]=new gridCell(rand1(),rand1(),rand1());} 
     
-    flipThreshold =0.5; 
     screenDraw = 0;
     serviceFlag = true;
     
@@ -134,7 +132,6 @@ function middleSwap(){
 
 function smooth(){
 	screenDraw++;
-	if(flipThreshold>0.000001){flipThreshold= flipThreshold*0.95;}
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	middleSwap();
 
