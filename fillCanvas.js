@@ -1,4 +1,4 @@
-
+// CanvasGames - Annealing of colors - swapping two cell values if it is a better color match
 
 var screenDraw = 0;
 var flipThreshold = 0.5;
@@ -72,149 +72,12 @@ function drawCanvas1(){
 	ctx.stroke();
 };
 
-function calculateIndexST(i, j){ return (j+i*gridSize);}
-
-function swapTestEdge(STi, STj, incStep){
-	
-	var indexST = calculateIndexST(STi, STj);
-	var zero = indexST;
-	var one = indexST+incStep;
-	var two = indexST+2*incStep;
-	var tff = 255;
-	
-	var STLr = dataGrid[zero].r-dataGrid[one].r;
-	var STLg = dataGrid[zero].g-dataGrid[one].g;
-	var STLb = dataGrid[zero].b-dataGrid[one].b;
-    var STLeft = STLr*STLr +STLg*STLg+STLb*STLb;
-
-	var STRr = dataGrid[two].r-dataGrid[zero].r;
-	var STRg = dataGrid[two].g-dataGrid[zero].g;
-	var STRb = dataGrid[two].b-dataGrid[zero].b;
-    var STRight = STRr*STRr * STRg*STRg * STRb*STRb;
-    var Bbool =  STRight<STLeft; 
-    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
-
-    return Bbool;
-};
-	
-function swapTest2D(STi, STj, incStep, incLateral){
-	var tff = 255;
-	var rSum=0;
-	var gSum=0;
-	var bSum=0;
-	function times(x){rSum *= x; gSum*= x; bSum*=x;}
-	
-	function addRGB(ST){
-		rSum += dataGrid[ST].r;
-		gSum += dataGrid[ST].g;
-		bSum += dataGrid[ST].b;
-	}
-
-	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
-	times(0); // clear data
-	addRGB(indexST+2*incStep);
-	addRGB(indexST+3*incStep);
-	addRGB(indexST+3*incStep+incLateral);
-	addRGB(indexST+3*incStep+2*incLateral);
-	addRGB(indexST+2*incStep+2*incLateral);
-	times(-0.2); // scale by 1/5
-	// get sum data
-	var SRr = rSum;
-	var SRg = gSum;
-	var SRb = bSum;
-	// find difference right cell with right surroundings
-	addRGB(indexST+2*incStep+incLateral);
-	var DiffRr = rSum;
-	var DiffRg = gSum;
-	var DiffRb = bSum;
-	var noDiffR = DiffRr*DiffRr *DiffRg*DiffRg * DiffRb*DiffRb;
-	
-	times(0); // clear data
-	addRGB(indexST);
-	addRGB(indexST+incStep);
-	addRGB(indexST+incLateral);
-	addRGB(indexST+2*incLateral);
-	addRGB(indexST+incStep+2*incLateral);
-	times(-0.2); // scale by 1/5
-	// get sum data
-	var SLr = rSum;
-	var SLg = gSum;
-	var SLb = bSum;
-	addRGB(indexST+incStep+incLateral);
-	var DiffLr = rSum;
-	var DiffLg = gSum;
-	var DiffLb = bSum;
-	var noDiffL = DiffLr*DiffLr * DiffLg*DiffLg * DiffLb*DiffLb;
-	//var NoChangeDiff = noDiffL+noDiffR;
-	var NoChangeDiff = Math.min(noDiffL,noDiffR);
-	
-	rSum = SRr;
-	gSum = SRg;
-	bSum = SRb;
-	addRGB(indexST+incStep+incLateral);
-	DiffRr = rSum;
-	DiffRg = gSum;
-	DiffRb = bSum;
-	var swapDiffR = DiffRr*DiffRr * DiffRg*DiffRg * DiffRb*DiffRb;
-	
-	rSum = SLr;
-	gSum = SLg;
-	bSum = SLb;
-	addRGB(indexST+2*incStep+incLateral);
-	DiffLr = rSum;
-	DiffLg = gSum;
-	DiffLb = bSum;
-	var swapDiffL = DiffRr*DiffRr * DiffRg*DiffRg * DiffRb*DiffRb;
-//	var SwapDiff = swapDiffR+swapDiffL;
-	var SwapDiff = Math.min(swapDiffR, swapDiffL);
-	
-	var Bbool =  SwapDiff<NoChangeDiff;
-    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
-    return Bbool;
-
-}	
-
-function test(nl,nr,sl,sr){
-	var maxS = Math.max(sl,sr);
-	var minS = Math.min(sl,sr);
-	var maxN = Math.max(nl,nr);
-	var maxA = Math.max(nl,nr,sl,sr);
-	if(minS>maxN){return true;}
-	if(maxN>maxS){return false;}
-	if(sr===maxA && sr===nr && nl>=sl){return false;}
-	if(sl===maxA && sl===nl && nr>=sr){return false;}
-	if(sr===maxA && sr===nr && nl<sl){return true;}
-	if(sl===maxA && sl===nl && nr<sr){return true;}
-	if(maxS>maxN){return true;} 
-	
-	return false;
-}
-
 function diffSQ(ST1,ST2){
 		var rd = dataGrid[ST1].r-dataGrid[ST2].r;
 		var gd = dataGrid[ST1].g-dataGrid[ST2].g;
 		var bd = dataGrid[ST1].b-dataGrid[ST2].b;
 		return maxTest - (rd*rd*1.1+gd*gd+bd*bd*.9);
 	}
-
-function swapTest2DA(STi, STj, incStep, incLateral){
-	
-	var indexST = calculateIndexST(STi, STj); // top left corner of 3x4 box
-	var indexR = indexST+2*incStep+incLateral;
-	var indexL = indexST+incStep+incLateral;
-	
-	var NoChangeR = diffSQ(indexR,indexST+incStep)+diffSQ(indexR,indexST+2*incStep)*2+ diffSQ(indexR, indexST+3*incStep)+ diffSQ(indexR, indexST+3*incStep+incLateral)*2+ diffSQ(indexR, indexST+3*incStep+incLateral*2)+ diffSQ(indexR, indexST+2*incStep+incLateral*2)*2+diffSQ(indexR,indexST+incStep+2*incLateral);
-
-	var NoChangeL = diffSQ(indexL,indexST+2*incStep)+diffSQ(indexL,indexST)+ diffSQ(indexL, indexST+incStep)*2+ diffSQ(indexL, indexST+incLateral)*2+ diffSQ(indexL, indexST+incLateral*2)+ diffSQ(indexL, indexST+incStep+incLateral*2)*2+diffSQ(indexL,indexST+2*incStep+2*incLateral);
-
-	var SwapR = diffSQ(indexL,indexST+incStep)+diffSQ(indexL,indexST+2*incStep)*2 +diffSQ(indexL, indexST+3*incStep)+ diffSQ(indexL, indexST+3*incStep+incLateral)*2+ diffSQ(indexL, indexST+3*incStep+incLateral*2)+ diffSQ(indexL, indexST+2*incStep+incLateral*2)*2+diffSQ(indexL,indexST+incStep+2*incLateral);
-
-	var SwapL = diffSQ(indexR,indexST+2*incStep)+ diffSQ(indexR,indexST)+ diffSQ(indexR, indexST+incStep)*2+diffSQ(indexR, indexST+incLateral)*2+  diffSQ(indexR, indexST+incLateral*2)+ diffSQ(indexR, indexST+incStep+incLateral*2)*2+diffSQ(indexR,indexST+2*incStep+2*incLateral);
-
-	var Bbool = test(NoChangeL, NoChangeR, SwapL, SwapR);
-    Bbool = (Math.random()<flipThreshold)||Bbool;// && (Math.random()<0.1);
-    return Bbool;
-}	
 
 function fitColor(i1,j1,i2,j2){
 	var ST1 = i1*gridSize+j1;
@@ -258,76 +121,23 @@ function testSwapSpaces(i1,j1,i2,j2){
 	var TwoAtOne = fitColor(i2,j2,i1,j1);
 	if(Math.max(OneAtOne,TwoAtTwo)<Math.max(OneAtTwo,TwoAtOne)){trade(i1,j1,i2,j2);}
 }	
-	
-function swapCells(STi, STj, incStep){
-	var indexST = calculateIndexST(STi, STj);
-	var zero = indexST;
-	var one = indexST+incStep;
-	var two = indexST+2*incStep;
-	
-	var r = dataGrid[one].r;
-	var g = dataGrid[one].g;
-	var b = dataGrid[one].b;
-	
-	dataGrid[one].r=dataGrid[two].r;
-	dataGrid[one].g=dataGrid[two].g;
-	dataGrid[one].b=dataGrid[two].b;
-	
-	dataGrid[two].r=r;
-	dataGrid[two].g=g;
-	dataGrid[two].b=b;
-	//drawCanvas1();
-};
-
-function interiorHorizontal(){	// internal box i=row, j=columns
-	for(var i=0; i<gridSize-2;i++){
-		for(var j=0; j< gridSize-3;j++){
-			//if(swapTest(i,j,1)){swapCells(i,j,1);}
-			if(swapTest2DA(i,j,1,gridSize)){swapCells(i+1,j+1,1);}
-		}
-	}
-}
-
-function interiorVertical(){
-	for(var i=0; i<gridSize-3;i++){
-		for(var j=0; j< gridSize-2;j++){
-			if(swapTest2DA(i,j,gridSize,1)){swapCells(i+1,j+1,gridSize);}
-		}
-	}
-}
 
 function middleSwap(){
-for (i=0;i<gridSize;i++){
-	var iIndex1 = randGS(gridSize);
-	var jIndex1 = randGS(gridSize);
-	var iIndex2 = randGS(gridSize);
-	var jIndex2 = randGS(gridSize);
-	if(iIndex1!==iIndex2 && jIndex1!==jIndex2){	testSwapSpaces(iIndex1,jIndex1,iIndex2,jIndex2);}
-}}
-
-function edgewalk(){	// left side
-	for ( var i = 0; i< gridSize; i++){
-		var x = Math.floor(Math.random()*gridSize);
-		//left edge increment=1
-		if(swapTestEdge(x,2,-1)){swapCells(x, 2, -1);}
-		//right edge increment=-4
-		if(swapTestEdge(x,gridSize-3,1)){swapCells(x, gridSize-3, 1);}
-		//top edge increment=gridSize
-		if(swapTestEdge(2,x,-gridSize)){swapCells(2, x, -gridSize);}
-		//bottom edge increment=-gridSize
-		if(swapTestEdge(gridSize-3, x,gridSize)){swapCells(gridSize-3, x, gridSize);}
-	}		
+	for (i=0;i<gridSize;i++){
+		var iIndex1 = randGS(gridSize);
+		var jIndex1 = randGS(gridSize);
+		var iIndex2 = randGS(gridSize);
+		var jIndex2 = randGS(gridSize);
+		if(iIndex1!==iIndex2 && jIndex1!==jIndex2){	testSwapSpaces(iIndex1,jIndex1,iIndex2,jIndex2);}
+	 }
 }
 
 function smooth(){
 	screenDraw++;
 	if(flipThreshold>0.000001){flipThreshold= flipThreshold*0.95;}
-	//document.getElementById("Threshold").innerHTML=flipThreshold.toFixed(5);
 	document.getElementById("screenDraw").innerHTML=screenDraw.toFixed(0);
 	middleSwap();
-	//interiorHorizontal();
-	//interiorVertical();
-	//edgewalk();
+
 }
 
 function cycle(myVarr){
@@ -362,5 +172,3 @@ function PausePlay(){
 OnChange();
 drawCanvas1();
 start();
-
-//smooth();
