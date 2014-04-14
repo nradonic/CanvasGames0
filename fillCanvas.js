@@ -10,6 +10,8 @@ var ColorSpace = 2;
 var ColorScale = 255;
 var maxTest = 3*255*255;
 
+var savedData="";
+
 function rand1(){
 	return Math.floor(Math.random()*ColorSpace)*ColorScale;
 }
@@ -150,14 +152,22 @@ var myVar;
 
 function start(){
 	myVar=setInterval(function(){cycle(myVar)},screenDelay);
+	Pause = false;
 }
 
-function stop(){clearInterval(myVar);}
+function stop(){
+	clearInterval(myVar); 
+	Pause = true;
+}
 
 function cycleDelay(){
 	var dropdownDelay = document.getElementById("select3");
 	screenDelay = parseInt(dropdownDelay.options[dropdownDelay.selectedIndex].value);
 	serviceFlag = true;
+}
+
+function ButtonLabelToPlay(){
+	document.getElementById("PausePlay").innerHTML="Play";
 }
 
 function PausePlay(){
@@ -169,3 +179,32 @@ function PausePlay(){
 OnChange();
 drawCanvas1();
 start();
+
+function SaveData(){
+	stop();
+	savedData = JSON.stringify({gridSize: gridSize, gridSize2: gridSize2, screenDraw: screenDraw, ColorSpace: ColorSpace, screenDelay: screenDelay, dataGrid: dataGrid});
+	ButtonLabelToPlay();
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/Controller/Action");
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        alert(xhr.responseText);
+		}
+	}
+	xhr.send(savedData);
+}
+
+function LoadData(){
+	stop();
+	var b = JSON.parse(savedData);
+	gridSize = b.gridSize;
+	gridSize2 = b.gridSize2;
+	screenDraw = b.screenDraw;
+	screenDelay = b.screenDelay;
+	ColorSpace = b.ColorSpace;
+	dataGrid = b.dataGrid;
+	drawCanvas1();
+	ButtonLabelToPlay();
+	}
